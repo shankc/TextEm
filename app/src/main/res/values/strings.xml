@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">TextEm</string>
+    <string name="title_messages_detail">Messages Detail</string>
+    <string name="type_text">type message</string>
+</resources>
