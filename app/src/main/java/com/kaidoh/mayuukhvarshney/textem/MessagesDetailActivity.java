@@ -21,7 +21,7 @@ public class MessagesDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_messages_detail);
         toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
         setSupportActionBar(toolbar);
-       toolbar.setTitle("Gimme More");
+
 
         // Show the Up button in the action bar.
         ActionBar actionBar = getSupportActionBar();

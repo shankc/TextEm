@@ -13,15 +13,14 @@
 
     <ImageButton
         android:id="@+id/pick_contact"
-        android:layout_width="73dp"
-        android:layout_height="wrap_content"
+        android:layout_width="48dip"
+        android:layout_height="48dip"
+        android:scaleType="fitXY"
 
         android:layout_gravity="end"
         android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_toEndOf="@id/numberbox"
-        android:layout_alignBottom="@id/numberbox"
-        />
+        android:layout_above="@+id/messagesContainer"
+        android:layout_alignParentEnd="true" />
 
     <ListView
         android:id="@+id/messagesContainer"
@@ -40,7 +39,7 @@
 
         <EditText
             android:id="@+id/messageEdit"
-            android:layout_width="285dp"
+            android:layout_width="256dp"
             android:layout_height="wrap_content"
             android:inputType="textMultiLine"
             android:layout_marginTop="54dp"
@@ -50,9 +49,10 @@
 
         <ImageView
             android:id="@+id/chatSend"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_gravity="end"
+            android:scaleType="fitXY"
+            android:layout_width="48dip"
+            android:layout_height="48dip"
             android:layout_marginTop="52dp"
             android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true">

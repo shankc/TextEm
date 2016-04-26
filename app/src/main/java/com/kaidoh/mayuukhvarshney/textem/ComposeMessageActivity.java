@@ -4,6 +4,7 @@ package com.kaidoh.mayuukhvarshney.textem;
  * Created by mayuukhvarshney on 25/04/16.
  */
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -11,8 +12,8 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.SmsManager;
-import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -42,7 +43,7 @@ public class ComposeMessageActivity extends AppCompatActivity {
         SendButton=(ImageView)findViewById(R.id.chatSend);
         TypedMessage=(EditText)findViewById(R.id.messageEdit);
         SendButton.setImageResource(R.drawable.ic_flight_takeoff_black_24dp);
-        AddContacts.setImageResource(R.drawable.ic_group_black_24dp);
+        AddContacts.setImageResource(R.drawable.ic_add_black_18dp);
 
         ComposedMessages=new ArrayList<>();
         ComposeAdapter=new ChatAdapter(this,ComposedMessages);
@@ -61,7 +62,13 @@ public class ComposeMessageActivity extends AppCompatActivity {
             public void onClick(View v) {
                 theMessage=TypedMessage.getText().toString();
                 PhoneNumber=NumberBox.getText().toString();
-                Log.d("ComposeMessageActivity", " the sent message is " + theMessage);
+                InputMethodManager inputManager = (InputMethodManager)
+                        getSystemService(Context.INPUT_METHOD_SERVICE);
+
+                inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),
+                        InputMethodManager.HIDE_NOT_ALWAYS);
+                TypedMessage.setText("");
+
                 try {
                     SmsManager smsManager = SmsManager.getDefault();
                     smsManager.sendTextMessage(PhoneNumber, null, theMessage, null, null);

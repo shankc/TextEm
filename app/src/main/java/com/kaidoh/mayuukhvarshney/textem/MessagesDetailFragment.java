@@ -103,7 +103,7 @@ public class MessagesDetailFragment extends Fragment {
             if(csent.moveToFirst()){
                 for(int i=0;i<csent.getCount();i++){
                     MessageData sms= new MessageData();
-                    Log.d("MessageDetailFragment"," the sent message is "+csent.getString(csent.getColumnIndexOrThrow("body")));
+                    Log.d("MessageDetailFragment"," the sent message is "+csent.getString(csent.getColumnIndexOrThrow("body"))+" "+csent.getString(csent.getColumnIndexOrThrow("address")));
                     if(csent.getString(csent.getColumnIndexOrThrow("address")).equals(mItem)){
                         sms.setBody(csent.getString(csent.getColumnIndexOrThrow("body")));
                         sms.setNumber(csent.getString(csent.getColumnIndexOrThrow("address")));
@@ -153,6 +153,7 @@ public class MessagesDetailFragment extends Fragment {
                 InputMessage=InputText.getText().toString();
                 InputMethodManager inputManager = (InputMethodManager)
                         getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                InputText.setText("");
 
                 inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(),
                         InputMethodManager.HIDE_NOT_ALWAYS);

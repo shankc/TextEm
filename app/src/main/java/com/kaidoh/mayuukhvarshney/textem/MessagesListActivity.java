@@ -12,11 +12,14 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.kaidoh.mayuukhvarshney.textem.dummy.DummyContent;
+import android.app.SearchManager;
+import android.support.v7.widget.SearchView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +49,6 @@ public class MessagesListActivity extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setTitle(getTitle());
         // parseing all messages on device and storing it on MessageList element
         Uri uri= Uri.parse("content://sms/inbox");
         Cursor c= getContentResolver().query(uri, null, null ,null,null);
@@ -76,16 +78,7 @@ public class MessagesListActivity extends AppCompatActivity {
         fab.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Intent intent = new Intent("android.intent.action.VIEW");
 
-                /** creates an sms uri */
-                //Uri data = Uri.parse("sms:");
-
-                /** Setting sms uri to the intent */
-               // intent.setData(data);
-
-                /** Initiates the SMS compose screen, because the activity contain ACTION_VIEW and sms uri */
-                //startActivity(intent);
                Intent intent = new Intent(MessagesListActivity.this,ComposeMessageActivity.class);
                 startActivity(intent);
 
@@ -177,72 +170,31 @@ public class MessagesListActivity extends AppCompatActivity {
         }
     }
 
-    public class SimpleItemRecyclerViewAdapter
-            extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
 
-        private final List<DummyContent.DummyItem> mValues;
 
-        public SimpleItemRecyclerViewAdapter(List<DummyContent.DummyItem> items) {
-            mValues = items;
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.option_menu, menu);
+       /* SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView mySearchView = (SearchView) menu.findItem(R.id.search).getActionView();
+        SearchableInfo searchableInfo = searchManager.getSearchableInfo(new ComponentName(MessagesListActivity.this, SearchResultsActivity.class));
+        mySearchView.setSearchableInfo(searchableInfo);
+
+       */
+        SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView =
+                (SearchView) menu.findItem(R.id.search).getActionView();
+        if(searchView!=null){
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(getComponentName()));
+            searchView.setIconifiedByDefault(false);
         }
-
-        @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.messages_list_content, parent, false);
-            return new ViewHolder(view);
+        else
+        {
+            Log.d("MessageListActivity","Searchview is null ");
         }
-
-        @Override
-        public void onBindViewHolder(final ViewHolder holder, int position) {
-            holder.mItem = mValues.get(position);
-            holder.mIdView.setText(mValues.get(position).id);
-            holder.mContentView.setText(mValues.get(position).content);
-
-            holder.mView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mTwoPane) {
-                        Bundle arguments = new Bundle();
-                        arguments.putString(MessagesDetailFragment.ARG_ITEM_ID, holder.mItem.id);
-                        MessagesDetailFragment fragment = new MessagesDetailFragment();
-                        fragment.setArguments(arguments);
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.messages_detail_container, fragment)
-                                .commit();
-                    } else {
-                        Context context = v.getContext();
-                        Intent intent = new Intent(context, MessagesDetailActivity.class);
-                        intent.putExtra(MessagesDetailFragment.ARG_ITEM_ID, holder.mItem.id);
-
-                        context.startActivity(intent);
-                    }
-                }
-            });
-        }
-
-        @Override
-        public int getItemCount() {
-            return mValues.size();
-        }
-
-        public class ViewHolder extends RecyclerView.ViewHolder {
-            public final View mView;
-            public final TextView mIdView;
-            public final TextView mContentView;
-            public DummyContent.DummyItem mItem;
-
-            public ViewHolder(View view) {
-                super(view);
-                mView = view;
-                mIdView = (TextView) view.findViewById(R.id.id);
-                mContentView = (TextView) view.findViewById(R.id.content);
-            }
-
-            @Override
-            public String toString() {
-                return super.toString() + " '" + mContentView.getText() + "'";
-            }
-        }
+        return true;
     }
 }

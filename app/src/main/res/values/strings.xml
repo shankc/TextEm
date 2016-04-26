@@ -2,4 +2,6 @@
     <string name="app_name">TextEm</string>
     <string name="title_messages_detail">Messages Detail</string>
     <string name="type_text">type message</string>
+    <string name="search_title">Search</string>
+    <string name="search_hint">Enter Search</string>
 </resources>
