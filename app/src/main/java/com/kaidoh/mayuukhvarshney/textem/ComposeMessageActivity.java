@@ -4,6 +4,7 @@ package com.kaidoh.mayuukhvarshney.textem;
  * Created by mayuukhvarshney on 25/04/16.
  */
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -30,8 +31,8 @@ public class ComposeMessageActivity extends AppCompatActivity {
     ImageButton AddContacts;
     ImageView SendButton;
     ChatAdapter ComposeAdapter;
-
-    String PhoneNumber,theMessage;
+    private BroadcastReceiver mMessageReceiver;
+    String PhoneNumber,theMessage,IncomingMessage,IncomingNumber;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -96,6 +97,8 @@ public class ComposeMessageActivity extends AppCompatActivity {
         });
 
 
+
+
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -108,7 +111,7 @@ public class ComposeMessageActivity extends AppCompatActivity {
                 Cursor cursor =  managedQuery(contactData, null, null, null, null);
                 cursor.moveToFirst();
 
-                String number =       cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                String number = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER));
 
                 //contactName.setText(name);
                 NumberBox.setText(number);

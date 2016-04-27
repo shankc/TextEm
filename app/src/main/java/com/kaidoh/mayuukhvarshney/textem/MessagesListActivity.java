@@ -1,14 +1,19 @@
 package com.kaidoh.mayuukhvarshney.textem;
 
+import android.app.SearchManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,9 +22,7 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import android.app.SearchManager;
-import android.support.v7.widget.SearchView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +44,9 @@ public class MessagesListActivity extends AppCompatActivity {
     private boolean mTwoPane;
     List<MessageData> MessageList;
     InboxAdapter mAdapter;
+    private BroadcastReceiver mMessageReceiver;
+    private String InMessage,InNumber;
+    private int InDate;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,25 +62,94 @@ public class MessagesListActivity extends AppCompatActivity {
 
         // Read Messages and store it in a MessageListMethod
 
-        if(c.moveToFirst() && c!=null){
+        if(c.moveToFirst()){
             for(int i=0;i<c.getCount();i++){
                 MessageData sms= new MessageData();
-                sms.setBody(c.getString(c.getColumnIndexOrThrow("body")));
-                sms.setNumber(c.getString(c.getColumnIndexOrThrow("address")));
-                sms.setDate(c.getInt(c.getColumnIndexOrThrow("date")));
-//                sms.setID(c.getString(c.getColumnIndexOrThrow("id")));
-                MessageList.add(sms);
+                boolean found=false;
+                if(MessageList!=null)
+                {
+                    for(int j=0;j<MessageList.size();j++){
+                        if(c.getString(c.getColumnIndexOrThrow("address")).equals(MessageList.get(j).getNumber())){
 
-                c.moveToNext();
+                            MessageList.get(j).setBody(c.getString(c.getColumnIndexOrThrow("body")));
+                            MessageList.get(j).setNumber(c.getString(c.getColumnIndexOrThrow("address")));
+                            MessageList.get(j).setDate(c.getInt(c.getColumnIndexOrThrow("date")));
+                            found=true;
+                            c.moveToNext();
+                            break;
+                        }
+                    }
+                    if(!found)
+                    {
+                        sms.setBody(c.getString(c.getColumnIndexOrThrow("body")));
+                        sms.setNumber(c.getString(c.getColumnIndexOrThrow("address")));
+                        sms.setDate(c.getInt(c.getColumnIndexOrThrow("date")));
+//                sms.setID(c.getString(c.getColumnIndexOrThrow("id")));
+                        MessageList.add(sms);
+
+                        c.moveToNext();
+                    }
+
+                }
+                else {
+                    sms.setBody(c.getString(c.getColumnIndexOrThrow("body")));
+                    sms.setNumber(c.getString(c.getColumnIndexOrThrow("address")));
+                    sms.setDate(c.getInt(c.getColumnIndexOrThrow("date")));
+//                sms.setID(c.getString(c.getColumnIndexOrThrow("id")));
+                    MessageList.add(sms);
+
+                    c.moveToNext();
+                }
             }
+
         }
         else {
-            Log.d("MessageListActivity", " cursor is null");
+            Toast.makeText(MessagesListActivity.this,"No Messages in Inbox",Toast.LENGTH_SHORT).show();
+            //Log.d("MessageListActivity", " cursor is null");
         }
-//c.close();
 
+//c.close();
+mMessageReceiver=new BroadcastReceiver() {
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        Bundle extras= intent.getExtras();
+        InNumber=extras.getString("PhoneNumber");
+        InMessage=extras.getString("Message");
+        String temp=extras.getString("Date");
+        if(temp!=null){
+            InDate=Integer.parseInt(temp);
+        }
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                boolean flag=false;
+                MessageData sms = new MessageData();
+                for(int i=0;i<MessageList.size();i++){
+                    if(InNumber.equals(MessageList.get(i).getNumber())){
+                        MessageList.get(i).setBody(InMessage);
+                        MessageList.get(i).setDate(InDate);
+                        MessageList.get(i).setNumber(InNumber);
+                        mAdapter.notifyDataSetChanged();
+                        flag=true;
+                        break;
+                    }
+
+                }
+                if(!flag){
+                    sms.setNumber(InNumber);
+                    sms.setBody(InMessage);
+                    sms.setDate(InDate);
+                    MessageList.add(0,sms);
+                    mAdapter.notifyDataSetChanged();
+
+                }
+            }
+        });
+
+    }
+};
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        if(fab!=null)
+        if (fab != null)
         fab.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -196,5 +271,11 @@ public class MessagesListActivity extends AppCompatActivity {
             Log.d("MessageListActivity","Searchview is null ");
         }
         return true;
+    }
+    @Override
+    public void onStart(){
+        super.onStart();
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
+                new IntentFilter("Incoming"));
     }
 }

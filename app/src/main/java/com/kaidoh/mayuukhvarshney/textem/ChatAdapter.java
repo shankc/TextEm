@@ -1,13 +1,14 @@
 package com.kaidoh.mayuukhvarshney.textem;
 
 import android.content.Context;
-import android.widget.LinearLayout.LayoutParams;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
+
 import java.util.List;
 
 
@@ -22,6 +23,7 @@ public class ChatAdapter extends BaseAdapter{
         this.mContext = context;
         this.mMessages = messages;
     }
+
     @Override
     public int getCount() {
         return mMessages.size();

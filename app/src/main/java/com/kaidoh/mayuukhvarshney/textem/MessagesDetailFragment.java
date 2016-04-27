@@ -1,13 +1,16 @@
 package com.kaidoh.mayuukhvarshney.textem;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.SmsManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,6 +51,8 @@ public class MessagesDetailFragment extends Fragment {
     private EditText InputText;
    private String InputMessage;
     private TextView toolbartext;
+    protected BroadcastReceiver mMessageReceiver;
+    private String RecievedNumber,RecievedMessage;
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -90,6 +95,7 @@ public class MessagesDetailFragment extends Fragment {
                     if(c.getString(c.getColumnIndexOrThrow("address")).equals(mItem)){
                         sms.setBody(c.getString(c.getColumnIndexOrThrow("body")));
                         sms.setNumber(c.getString(c.getColumnIndexOrThrow("address")));
+                        sms.setDate(c.getInt(c.getColumnIndexOrThrow("date")));
                         sms.senttFromUser(false);
 
                         ChatList.add(sms);
@@ -103,7 +109,6 @@ public class MessagesDetailFragment extends Fragment {
             if(csent.moveToFirst()){
                 for(int i=0;i<csent.getCount();i++){
                     MessageData sms= new MessageData();
-                    Log.d("MessageDetailFragment"," the sent message is "+csent.getString(csent.getColumnIndexOrThrow("body"))+" "+csent.getString(csent.getColumnIndexOrThrow("address")));
                     if(csent.getString(csent.getColumnIndexOrThrow("address")).equals(mItem)){
                         sms.setBody(csent.getString(csent.getColumnIndexOrThrow("body")));
                         sms.setNumber(csent.getString(csent.getColumnIndexOrThrow("address")));
@@ -115,19 +120,20 @@ public class MessagesDetailFragment extends Fragment {
                 }
             }
 
+            Collections.sort(ChatList, new Comparator<MessageData>() {
+                @Override
+                public int compare(MessageData lhs, MessageData rhs) {
+
+                   return lhs.getDate()-rhs.getDate();
+                }
+            });
+
+
 
         }
 
-        ((MessagesDetailActivity)getActivity()).toolbar.setTitle(mItem);
-        Collections.sort(ChatList, new Comparator<MessageData>() {
-            @Override
-            public int compare(MessageData lhs, MessageData rhs) {
-                if(lhs.getDate()<rhs.getDate()){
-                    return lhs.getDate();
-                }
-                return rhs.getDate();
-            }
-        });
+
+
 
     }
 
@@ -143,8 +149,11 @@ public class MessagesDetailFragment extends Fragment {
         //InputMessage=InputText.getText().toString();
         Send.setImageResource(R.drawable.send);
         IncomingMessage=(ListView)rootView.findViewById(R.id.messagesContainer);
+
+
         mChatAdapter= new ChatAdapter(getActivity(),ChatList);
         IncomingMessage.setAdapter(mChatAdapter);
+
         mChatAdapter.notifyDataSetChanged();
         ((MessagesDetailActivity)getActivity()).toolbar.setTitle(mItem);
         Send.setOnClickListener(new View.OnClickListener() {
@@ -179,12 +188,40 @@ public class MessagesDetailFragment extends Fragment {
                 });
             }
         });
-        // Show the dummy content as text in a TextView.
-       // if (mItem != null) {
-         //   ((TextView) rootView.findViewById(R.id.messages_detail)).setText(mItem);
-        //}
+mMessageReceiver= new BroadcastReceiver() {
+    @Override
+    public void onReceive(Context context, Intent intent) {
+  Bundle extras= intent.getExtras();
+          RecievedNumber=extras.getString("PhoneNumber");
+        RecievedMessage=extras.getString("Message");
 
+        if(mItem.equals(RecievedNumber)){
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    MessageData sms= new MessageData();
+                    sms.setBody(RecievedMessage);
+                    sms.senttFromUser(false);
+                    ChatList.add(sms);
+
+                    mChatAdapter.notifyDataSetChanged();
+
+                }
+            });
+
+        }
+    }
+};
 
         return rootView;
+
     }
+    @Override
+    public void onStart(){
+        super.onStart();
+
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver,
+                new IntentFilter("Incoming"));
+    }
+
 }
