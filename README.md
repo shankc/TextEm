@@ -9,6 +9,8 @@ Customised Message Compose Window created with the option of selecting a contact
 
 Standard Google Libraries Used, which can be seen in the import statements.
 
+#Try It:
+https://www.dropbox.com/s/evuyilo6vsv4opz/TextEm.apk?dl=0
 #Android Version
 Min Sdk version in Api 19(Kit-Kat),
 The Maximum Sdk being for is API 23(Marshmallow).
